@@ -122,6 +122,7 @@
 
 - name: Add cron job to regularly run "spack clean" in the early morning
   cron:
+    name: spack-clean
     hour: "4"
     minute: "0"
     user: '{{ spack_service_user }}'
