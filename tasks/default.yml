@@ -100,11 +100,17 @@
     src: spack-env.sh.j2
     dest: /etc/profile.d/spack-env.sh
 
-- name: Initialize Spack environmment
+- name: Initialize Spack environmment (system)
   become: yes
   become_user: '{{ spack_service_user }}'
-  when: not spack_binary.stat.exists
+  when: spack_make_sys_default and not spack_binary.stat.exists
   command: "/bin/bash /etc/profile.d/spack-env.sh"
+
+- name: Initialize Spack environmment (non-system)
+  become: yes
+  become_user: '{{ spack_service_user }}'
+  when: not spack_make_sys_default and not spack_binary.stat.exists
+  command: "/bin/bash {{ spack_install_dir }}/share/spack/setup-env.sh"
 
 - name: Remove modules config if modules are not enabled.
   file:
