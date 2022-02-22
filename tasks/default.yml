@@ -25,12 +25,12 @@
   group:
     name: '{{ spack_service_group }}'
     gid: '{{ spack_service_group_gid }}'
-  when: "{{ spack_service_group_gid|default(false, true) }}"
+  when: "spack_service_group_gid|default(false, true)"
 
 - name: Create a Spack service user group with a specific guid.
   group:
     name: '{{ spack_service_group }}'
-  when: "not {{ spack_service_group_gid|default(false, true) }}"
+  when: "not (spack_service_group_gid|default(false, true))"
 
 - name: Create a Spack service user with a specific uid/primary group gid.
   user: 
@@ -39,7 +39,7 @@
     group: '{{ spack_service_group }}'
     home: /var/lib/{{ spack_service_user }}
     shell: /sbin/nologin
-  when: "{{ spack_service_user_uid |default(false, true) }}"
+  when: "spack_service_user_uid |default(false, true)"
   register: make_service_user_result
 
 - name: Create a Spack service user.
@@ -131,13 +131,13 @@
   become: yes
   become_user: '{{ spack_service_user }}'
   command: "{{ spack_install_dir }}/bin/spack mirror add {{ spack_mirror_remote_name|default('remote', true) }} {{ spack_mirror_remote_addr }} --scope defaults"
-  when: "{{ spack_mirror_remote|default(false, true) }}"
+  when: "spack_mirror_remote|default(false, true)"
 
 - name: Make a package mirror / local cache of source code for all versions of key packages and their dependencies.
   become: yes
   become_user: '{{ spack_service_user }}'
   with_items: "{{ spack_mirror_pkgs }}"
-  when: "{{ spack_mirror_pkgs|default(false, true) }}"
+  when: "spack_mirror_pkgs|default(false, true)"
   command: "{{ spack_install_dir }}/bin/spack mirror create -D -d {{ spack_mirror_dir }} -n all {{ item }}"
   async: '{{spack_timeout_seconds}}'
   poll: 120
@@ -146,7 +146,7 @@
   become: yes
   become_user: '{{ spack_service_user }}'
   command: "{{ spack_install_dir }}/bin/spack mirror add local file://{{ spack_mirror_dir }} --scope defaults"
-  when: "{{ spack_mirror_pkgs|default(false, true) }}"
+  when: "spack_mirror_pkgs|default(false, true)"
 
 # This takes a long time because compiling compilers takes a long time.
 # Because of this we have it run asynchronously.
@@ -156,7 +156,7 @@
   become: yes
   become_user: '{{ spack_service_user }}'
   with_items: "{{ spack_base_env }}"
-  when: "{{ spack_base_env|default(false, true) }}"
+  when: "spack_base_env|default(false, true)"
   command: "{{ spack_install_dir }}/bin/spack install {{ item }}"
   async: '{{spack_timeout_seconds}}'
   poll: 120
